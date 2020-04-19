@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
 # usage:
-#     wg-ubuntu-server-up.sh [<number_of_clients>]
+#     wg-ubuntu-server-up.sh 
 
-clients_count=${1:-10}
 working_dir="$HOME/wireguard"
 
 mkdir -p "${working_dir}"
@@ -23,13 +22,43 @@ sudo modprobe wireguard
 echo ----------------------------------------------------------install qrencode
 sudo apt install -y qrencode
 
-echo -------------------------------------------------- download wg-genconfig.sh
-cd "${working_dir}" &&
-wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-genconf.sh
-chmod +x ./wg-genconf.sh
+#echo -------------------------------------------------- download wg-genconfig.sh
+#cd "${working_dir}" &&
+#wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-genconf.sh
+#chmod +x ./wg-genconf.sh
 
-echo ----------------------generate configurations for "${clients_count}" clients
-./wg-genconf.sh "${clients_count}"
+#echo ----------------------generate configurations for "${clients_count}" clients
+#./wg-genconf.sh "${clients_count}"
+
+echo ----------------------------------------------generate server configuration
+
+# identify the public IP address of the server
+server_ip=${(dig @resolver1.opendns.com ANY myip.opendns.com +short)}
+
+# configuring the private server
+server_private_key=$(wg genkey)
+server_public_key=$(echo "${server_private_key}" | wg pubkey)
+server_config=wg0.conf
+
+# identifying the public interface of the server
+server_public_interface=$(route -n | awk '$1 == "0.0.0.0" {print $8}')
+
+echo Generate server \("${server_ip}"\) config:
+echo
+echo -e "\t$(pwd)/${server_config}"
+
+#
+# writing server config to file
+#
+cat > "${server_config}" <<EOL
+[Interface]
+Address = 10.0.0.1/24
+SaveConfig = false
+ListenPort = 51820
+PrivateKey = ${server_private_key}
+PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${server_public_interface} -j MASQUERADE
+PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${server_public_interface} -j MASQUERADE
+EOL
 
 echo -----------------------------------move server\'s config to /etc/wireguard/
 mv -v ./wg0.conf \
@@ -62,7 +91,7 @@ sudo apt install -y iptables-persistent
 sudo systemctl enable netfilter-persistent
 sudo netfilter-persistent save
 
-echo ---------------------------------------------install and configure unbound
+echo -----------------------------------------install and configure unbound DNS
 sudo apt install -y unbound unbound-host
 
 curl -o /var/lib/unbound/root.hints https://www.internic.net/domain/named.cache
@@ -131,12 +160,8 @@ sudo systemctl start unbound
 # show wg
 wg show
 
-echo && echo You can use this config: client1.conf
-echo "--------------------------------------------------------↓"
-cat "${working_dir}/client1.conf"
-echo "--------------------------------------------------------↑"
-
-echo && echo "Or you could find all the generated configs here: ${working_dir}"
+echo && echo You can add new clients by executing the following command:
+echo "wg-genconf-user.sh [Wireguard config file] [Name of client] [Client IP last octet]"
 echo
 
 # reboot to make changes effective
