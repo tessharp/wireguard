@@ -22,10 +22,10 @@ sudo modprobe wireguard
 echo ----------------------------------------------------------install qrencode
 sudo apt install -y qrencode
 
-#echo -------------------------------------------------- download wg-genconfig.sh
-#cd "${working_dir}" &&
-#wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-genconf.sh
-#chmod +x ./wg-genconf.sh
+echo ---------------------------------------------- download wg-genconf-user.sh
+cd "${working_dir}" &&
+wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-genconf-user.sh
+chmod +x ./wg-genconf-user.sh
 
 #echo ----------------------generate configurations for "${clients_count}" clients
 #./wg-genconf.sh "${clients_count}"

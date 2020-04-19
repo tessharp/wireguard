@@ -3,15 +3,17 @@
 This repository contains scripts that make it easy to configure [WireGuard](https://www.wireguard.com)
 on [VPS](https://en.wikipedia.org/wiki/Virtual_private_server).
 
-Medium article: [How to deploy WireGuard node on a DigitalOcean's droplet](https://medium.com/@drew2a/replace-your-vpn-provider-by-setting-up-wireguard-on-digitalocean-6954c9279b17)
+This script has been updated from its original repository by @drew2a.
+
+Original article is in Medium: [How to deploy WireGuard node on a DigitalOcean's droplet](https://medium.com/@drew2a/replace-your-vpn-provider-by-setting-up-wireguard-on-digitalocean-6954c9279b17)
 
 ## Quick Start
 
 ```bash
-wget https://raw.githubusercontent.com/drew2a/wireguard/master/wg-ububtu-server-up.sh
+wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-ubuntu-server-up.sh
 
-chmod +x ./wg-ububtu-server-up.sh
-./wg-ububtu-server-up.sh
+chmod +x ./wg-ubuntu-server-up.sh
+./wg-ubuntu-server-up.sh
 ```
 
 To get a full instruction, please follow to the article above.
@@ -31,7 +33,7 @@ This script:
 ### Usage
 
 ```bash
-wg-ubuntu-server-up.sh [<number_of_clients>]
+wg-ubuntu-server-up.sh
 ```
 
 ### Example of usage
@@ -44,13 +46,9 @@ wg-ubuntu-server-up.sh [<number_of_clients>]
 ./wg-ubuntu-server-up.sh 10
 ```
 
-## wg-genconf.sh
+## wg-genconf-user.sh
 
 This script generate server and clients configs for WireGuard.
-
-If the public IP is not defined, then the public IP of the machine from which 
-the script is run is used.
-If the number of clients is not defined, then used 10 clients.
 
 ### Prerequisites
 
@@ -59,23 +57,5 @@ Install [WireGuard](https://www.wireguard.com) if it's not installed.
 ### Usage
 
 ```bash
-./wg-genconf.sh [<number_of_clients> [<server_public_ip>]]
+./wg-genconf-user.sh [<number_of_clients> [<server_public_ip>]]
 ```
-
-### Example of usage:
-
-```bash
-./wg-genconf.sh
-```
-
-```bash
-./wg-genconf.sh 10
-```
-
-```bash
-./wg-genconf.sh 10 157.245.73.253 
-```
-
-## Contributors
-
-* [buraksarica](https://github.com/buraksarica)
