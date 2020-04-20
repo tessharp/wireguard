@@ -116,5 +116,5 @@ EOL
 esac
 
 echo
-echo -e "Make sure to restart Wireguard for changes to take effect:"
+echo -e "Make sure to restart Wireguard for changes to take effect. For example:"
 echo -e "\tsystemctl restart wg-quick@wg0"
