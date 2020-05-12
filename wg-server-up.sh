@@ -70,6 +70,9 @@ sudo apt install -y software-properties-common
 echo ------------------------------------------------------------------install bc
 sudo apt install -y bc
 
+echo -----------------------------------------------------------install net-tools
+sudo apt install -y net-tools
+
 if [[ "${dns_service}" == "PIHOLE" ]]
 then
     echo && echo ------------------------------------------install and configure pihole DNS
