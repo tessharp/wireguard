@@ -16,7 +16,7 @@ while getopts "d:" opt; do
     case ${opt} in
         d) # process proxy
             temp_var=${OPTARG^^}
-            if [[ "$temp_var" == "UNBOUND" || "$temp_var" == "PIHOLE" ]]
+            if [[ "$temp_var" == "UNBOUND" || "$temp_var" == "PIHOLE" || "$temp_var" == "NONE" ]]
             then
                 dns_service=${temp_var}
                 print_help=false
@@ -41,7 +41,7 @@ done
 if (${print_help})
 then
     echo "Usage: wg-ubuntu-server-up.sh [-d] <unbound|pihole>"
-    echo "-d: Specifies which DNS service to use - Unbound or Pihole"
+    echo "-d: Specifies which DNS service to use - Unbound, Pihole or None"
     echo "-u: Force a distribution upgrade: (apt update dist-upgrade)"
     exit 1
 fi
