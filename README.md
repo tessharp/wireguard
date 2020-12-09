@@ -13,19 +13,23 @@ Original article is in Medium: [How to deploy WireGuard node on a DigitalOcean's
 wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-server-up.sh
 
 chmod +x ./wg-server-up.sh
-./wg-server-up.sh
+./wg-server-up.sh -d unbound
+# OR
+./wg-server-up.sh -d pihole
 ```
 
-To get a full instruction, please follow to the article above.
+## Roadmap
+* Review and fix Pihole deployment (Currently does not resolve appropriately)
+* Simplify adding clients - remove requirement for assigning octet if not specified by user
 
-## wg-ubuntu-server-up.sh
+## wg-server-up.sh
 
-This script:
+This script will:
 
-* Installs all necessary software on an empty Ubuntu DigitalOcean droplet
+* Installs al necessary software on an empty Ubuntu DigitalOcean droplet
 (it should also work with most modern Ubuntu images)
-* Configures IPv4 forwarding and iptables rules
-* Sets up [unbound](https://github.com/NLnetLabs/unbound) DNS resolver 
+* Configures IPv4 forwarding and appropriate iptables rules
+* Sets up [unbound](https://github.com/NLnetLabs/unbound) or [pihole](https://pi-hole.net/) as a DNS resolver 
 * Creates a server and clients configurations
 * Installs [qrencode](https://github.com/fukuchi/libqrencode/)
 * Runs [WireGuard](https://www.wireguard.com)
@@ -33,29 +37,33 @@ This script:
 ### Usage
 
 ```bash
-wg-ubuntu-server-up.sh
+wg-server-up.sh -d [unbound|pihole]
 ```
 
-### Example of usage
+### Examples
 
 ```bash
-./wg-ubuntu-server-up.sh
+./wg-server-up.sh -d unbound
 ```
-
-```bash
-./wg-ubuntu-server-up.sh 10
-```
-
-## wg-genconf-user.sh
-
-This script generate server and clients configs for WireGuard.
 
 ### Prerequisites
 
-Install [WireGuard](https://www.wireguard.com) if it's not installed.
+Install [WireGuard](https://www.wireguard.com) if it's not installed through the ``wg-server-up.sh`` script.
+
+
+## wg-genconf-user.sh
+
+This script will generate clients configs for WireGuard and add or remove the relevant user configuration to the server config. You need to supply the configuration file, client name, and last octet of the IP used to route the WireGuard traffic.
 
 ### Usage
 
 ```bash
-./wg-genconf-user.sh [<number_of_clients> [<server_public_ip>]]
+./wg-genconf-user.sh -c [configuration_file] -[a|d] [client_name] -o [IP_last_octet]
+```
+
+### Examples
+
+```bash
+./wg-genconf-user.sh -c /etc/wireguard/wg0.conf -a client -o 5
+./wg-genconf-user.sh -c /etc/wireguard/wg0.conf -d client
 ```
