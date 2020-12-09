@@ -12,8 +12,8 @@ Original article is in Medium: [How to deploy WireGuard node on a DigitalOcean's
 ```bash
 wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-server-up.sh
 
-chmod +x ./wg-ubuntu-server-up.sh
-./wg-ubuntu-server-up.sh
+chmod +x ./wg-server-up.sh
+./wg-server-up.sh
 ```
 
 To get a full instruction, please follow to the article above.

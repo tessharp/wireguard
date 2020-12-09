@@ -40,7 +40,7 @@ done
 
 if (${print_help})
 then
-    echo "Usage: wg-ubuntu-server-up.sh [-d] <unbound|pihole>"
+    echo "Usage: wg-server-up.sh [-d] <unbound|pihole>"
     echo "-d: Specifies which DNS service to use - Unbound, Pihole or None"
     echo "-u: Force a distribution upgrade: (apt update dist-upgrade)"
     exit 1
@@ -272,7 +272,7 @@ fi
 wg show
 
 echo && echo "You can add new clients by executing the following command:"
-echo -e "\twg-genconf-user.sh [Wireguard config file] [Name of client] [Client IP last octet]"
+echo -e "\twg-genconf-user.sh -c [Wireguard config file] -a [Name of client] -o [Client IP last octet]"
 echo && echo "Please check if the interface for Wireguard is currently working by executing the following command upon reboot:"
 echo -e "\tip addr show wg0"
 echo && echo "If the interface is not available, it may be due to headers/OS upgrade. Please run the following commands:"

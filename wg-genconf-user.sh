@@ -7,14 +7,16 @@ echo "========================="
 echo "Working from the $(pwd) directory."
 echo "Running with the following parameters:${@}"
 
-server_config=${2}
-client_name=${3}
-client_ip_octet=${4}
+curr_args = $(getopt -n wg-genconf-user -o c:a:d:o:h --long config:,add:,delete:,octet:,help)
 
-for arg in "$@"
-do
-    if [ "$arg" == "--help" ] || [ "$arg" == "-h" ]
-    then
+server_config=
+client_name=
+client_ip_octet=
+action=
+
+# Syntax of the script
+usage()
+{
         echo -e "Syntax: wg-genconf-user.sh [<-ad>][Wireguard config file] [Name of client] [<Client IP last octet>]."
         echo "Flags"
         echo -e "\t-a or --add: Add a client to a configuration file. Requires the Client IP last octet."
@@ -23,31 +25,19 @@ do
         echo -e "\tWireguard config file: Location of the configuration file to edit."
         echo -e "\tName of the client: Name of the client configuration to include in Wireguard."
         echo -e "\tIP last octet: Unique IP octet to append to a particular client."
-        exit #No error
-    fi
-done
-#
-# checking for configuration file in place
-#
+        exit 2 #No error
+}
 
-if ! test -f "${server_config}"
-then
-    echo "Wireguard configuration file could not be found or was not provided. Exiting."
-    exit #file not found
-fi
-
-if [ -z ${client_name} ]
-then
-    echo "Client name was not provided. Exiting."
-    exit #no client name
-fi
-
-case "${1}" in
-    "-a"|"--add")
+# Add user function
+add_user()
+{
+        #
+        # Checking for octet
+        #
         if [ -z ${client_ip_octet} ]
-            then
-                echo "Client IP octet was not provided. Exiting."
-                exit #no octed provided
+        then
+            echo "Client IP octet was not provided. Exiting."
+            exit #no octed provided
         fi
 
         #
@@ -59,7 +49,7 @@ case "${1}" in
         #
         # obtaining current IP address to link vpn server
         #
-        server_ip=$(dig @resolver1.opendns.com ANY myip.opendns.com +short)
+        server_ip=$(dig TXT +short o-o.myaddr.l.google.com @ns1.google.com | awk -F'"' '{ print $2}')
 
         #
         # add configuration for a particular user on Wireguard
@@ -102,18 +92,83 @@ PublicKey = ${client_public_key}
 AllowedIPs = ${client_ip}
 # ${client_name}_END
 EOL
-    ;;
-    "-d"|"--delete")
-        echo "Removing client ${client_name}"
-        line_start = $(grep -nr "# ${client_name}_START" ${server_config} | cut -f1 -d:)
-        line_end = $(grep -nr "# ${client_name}_END" ${server_config} | cut -f1 -d:)
-        sed '${line_start},${line_end}d' ${server_config}
-    ;;
-    *)
-        echo "Unknown flag ${1}. Aborting."
-        exit
-    ;;
-esac
+}
+
+# Delete user function
+deluser()
+{
+    echo "Removing client ${client_name}"
+    line_start = $(grep -nr "# ${client_name}_START" ${server_config} | cut -f1 -d:)
+    line_end = $(grep -nr "# ${client_name}_END" ${server_config} | cut -f1 -d:)
+    sed '${line_start},${line_end}d' ${server_config}
+}
+
+
+# Main program
+valid_args = $?
+if ["$valid_args"!= "0"]; then
+    usage
+fi
+
+eval set -- "$curr_args"
+while :
+do
+    case "$1" in
+        -c | --config)
+            server_config=$2
+            if ! test -f "${server_config}"
+            then
+                echo "Wireguard configuration file could not be found or was not provided. Exiting."
+                exit #file not found
+            fi
+            shift 2
+        ;;
+        -a | --add)
+            if [-z ${action}]; then
+                action="add"
+                client_name=$2
+                shift 2
+            else
+                echo "Multiple actions invoked. Aborting."
+                usage
+            fi
+        ;;
+        -d | --delete)
+            if [-z ${action}]; then
+                action="delete"
+                client_name=$2
+                shift 2
+            else
+                echo "Multiple actions invoked. Aborting."
+                usage
+            fi
+        ;;
+        -o | --octet)
+            client_ip_octet=$2
+            shift 2
+        ;;
+        -h | --help)
+            usage
+        ;;
+        --)
+            shift
+            break
+        ;;
+        *)
+            echo "Unknown flag $1. Aborting."
+            usage
+        ;;
+    esac
+done
+
+# Checking for client name
+if [ -z ${client_name} ]
+then
+    echo "Client name was not provided. Exiting."
+    exit #no client name
+fi
+
+
 
 echo
 echo -e "Make sure to restart Wireguard for changes to take effect. For example:"
