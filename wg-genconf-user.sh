@@ -4,15 +4,18 @@
 echo "Wireguard User Management"
 echo "========================="
 
-echo "Working from the $(pwd) directory."
-echo "Running with the following parameters:${@}"
-
-curr_args = $(getopt -n wg-genconf-user -o c:a:d:o:h --long config:,add:,delete:,octet:,help)
-
+# Variable declaration
+curr_args=
+valid_args=
 server_config=
 client_name=
 client_ip_octet=
 action=
+
+curr_args=$(getopt -n wg-genconf-user -o c:a:d:o:h --long config:,add:,delete:,octet:,help -- "$@")
+
+echo "Working from the $(pwd) directory."
+echo "Running with the following parameters:${curr_args}"
 
 # Syntax of the script
 usage()
@@ -95,7 +98,7 @@ EOL
 }
 
 # Delete user function
-deluser()
+del_user()
 {
     echo "Removing client ${client_name}"
     line_start = $(grep -nr "# ${client_name}_START" ${server_config} | cut -f1 -d:)
@@ -105,8 +108,8 @@ deluser()
 
 
 # Main program
-valid_args = $?
-if ["$valid_args"!= "0"]; then
+valid_args=$?
+if [ "$valid_args" != "0" ]; then
     usage
 fi
 
@@ -115,7 +118,7 @@ while :
 do
     case "$1" in
         -c | --config)
-            server_config=$2
+            server_config="$2"
             if ! test -f "${server_config}"
             then
                 echo "Wireguard configuration file could not be found or was not provided. Exiting."
@@ -124,9 +127,10 @@ do
             shift 2
         ;;
         -a | --add)
-            if [-z ${action}]; then
+            echo "Adding user."
+            if [ -z ${action} ]; then
                 action="add"
-                client_name=$2
+                client_name="$2"
                 shift 2
             else
                 echo "Multiple actions invoked. Aborting."
@@ -134,9 +138,10 @@ do
             fi
         ;;
         -d | --delete)
-            if [-z ${action}]; then
+            echo "Deleting user."
+            if [ -z ${action} ]; then
                 action="delete"
-                client_name=$2
+                client_name="$2"
                 shift 2
             else
                 echo "Multiple actions invoked. Aborting."
@@ -164,11 +169,28 @@ done
 # Checking for client name
 if [ -z ${client_name} ]
 then
-    echo "Client name was not provided. Exiting."
-    exit #no client name
+    echo "Client name was not provided. Aborting."
+    usage
 fi
 
+if [ -z ${action} ]
+then
+    echo "No action was requested. Exiting."
+    usage
+fi
 
+case "$action" in
+    "add")
+        add_user
+    ;;
+    "delete")
+        del_user
+    ;;
+    *)
+        echo "You should not be here. Exiting."
+        usage
+    ;;
+esac
 
 echo
 echo -e "Make sure to restart Wireguard for changes to take effect. For example:"

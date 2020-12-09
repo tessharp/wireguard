@@ -78,13 +78,13 @@ then
     echo && echo ------------------------------------------install and configure pihole DNS
     # workaround for 127.0.0.53 for installation ONLY in Ubuntu 18.04 and lower (https://www.reddit.com/r/pihole/comments/8sgro3/server_name_resolution_messed_up_when_running/
     # and https://bugs.launchpad.net/ubuntu/+source/systemd/+bug/1624320/comments/8)
-    echo "Detecting version..."
-    if [[ "${os_name}" == "Ubuntu" ]]
-    then
-        echo "Ubuntu detected."
-        rm -f /etc/resolv.conf
-        ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
-    fi
+    # echo "Detecting version..."
+    # if [[ "${os_name}" == "Ubuntu" ]]
+    # then
+    #     echo "Ubuntu detected."
+    #     rm -f /etc/resolv.conf
+    #     ln -s /run/systemd/resolve/resolv.conf /etc/resolv.conf
+    # fi
     # preparing pihole
     wget -O basic-pihole-install.sh https://install.pi-hole.net
     chmod 700 basic-pihole-install.sh
@@ -92,14 +92,14 @@ then
     ./basic-pihole-install.sh --unattended --disable-install-webserver
 
     # configuring pihole-dns in similar workaround fashion
-    if [[ "${os_name}" == "Ubuntu" ]]
-    then
-        cat > /run/systemd/resolve/pihole-resolv.conf << ENDOFFILE
-nameserver 127.0.0.1
-ENDOFFILE
-        rm -f /etc/resolv.conf
-        ln -s /run/systemd/resolve/pihole-resolv.conf /etc/resolv.conf
-    fi
+#     if [[ "${os_name}" == "Ubuntu" ]]
+#     then
+#         cat > /run/systemd/resolve/pihole-resolv.conf << ENDOFFILE
+# nameserver 127.0.0.1
+# ENDOFFILE
+#         rm -f /etc/resolv.conf
+#         ln -s /run/systemd/resolve/pihole-resolv.conf /etc/resolv.conf
+#     fi
 
     # configure server to use pihole
     sed -i.bak "s/^        static domain_name_servers=.*/        static domain_name_servers=127.0.0.1/" /etc/dhcpcd.conf
