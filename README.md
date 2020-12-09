@@ -10,7 +10,7 @@ Original article is in Medium: [How to deploy WireGuard node on a DigitalOcean's
 ## Quick Start
 
 ```bash
-wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-ubuntu-server-up.sh
+wget https://raw.githubusercontent.com/tessharp/wireguard/master/wg-server-up.sh
 
 chmod +x ./wg-ubuntu-server-up.sh
 ./wg-ubuntu-server-up.sh

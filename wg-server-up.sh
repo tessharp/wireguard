@@ -118,11 +118,11 @@ then
 fi
 
 echo ---------------------------------------------------------install wireguard
-if [[ "${os_name}" == "Ubuntu" ]]
-then
-    echo "Adding Wireguard repository."
-    sudo add-apt-repository -y ppa:wireguard/wireguard
-fi
+# if [[ "${os_name}" == "Ubuntu" ]]
+# then
+#     echo "Adding Wireguard repository."
+#     sudo add-apt-repository -y ppa:wireguard/wireguard
+# fi
 sudo apt update && sudo apt upgrade -y
 echo "Installing Wireguard."
 sudo apt install -y wireguard
@@ -166,7 +166,7 @@ cat > "${server_config}" <<EOL
 [Interface]
 Address = 10.0.0.1/24
 SaveConfig = false
-ListenPort = 51820
+ListenPort = 1194
 PrivateKey = ${server_private_key}
 PostUp = iptables -A FORWARD -i %i -j ACCEPT; iptables -A FORWARD -o %i -j ACCEPT; iptables -t nat -A POSTROUTING -o ${server_public_interface} -j MASQUERADE
 PostDown = iptables -D FORWARD -i %i -j ACCEPT; iptables -D FORWARD -o %i -j ACCEPT; iptables -t nat -D POSTROUTING -o ${server_public_interface} -j MASQUERADE

@@ -79,14 +79,14 @@ case "${1}" in
         cat > "${client_config}" <<EOL
 [Interface]
 PrivateKey = ${client_private_key}
-ListenPort = 51820
+ListenPort = 1194
 Address = ${client_ip}
 DNS = 10.0.0.1
 
 [Peer]
 PublicKey = ${server_public_key}
 AllowedIPs = 0.0.0.0/0
-Endpoint = ${server_ip}:51820
+Endpoint = ${server_ip}:1194
 PersistentKeepalive = 21
 EOL
 
